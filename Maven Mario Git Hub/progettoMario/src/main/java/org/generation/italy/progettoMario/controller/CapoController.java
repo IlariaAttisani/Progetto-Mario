@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,17 +26,10 @@ public class CapoController {
 	@Autowired
 	private CrudCapo database;
 	
-//	@GetMapping
-//	public Iterable<Capo> get(@RequestParam(defaultValue ="") String search) {
-//		if (search.equals(""))
-//			return database.findAll();
-//		Map<String, String> ris = new HashMap<>();
-//		ris.put("colore", search);
-//		ris.put("nome", search);
-//		ris.put("taglia", search);
-//		ris.put("categoria.nome", search);
-//		return database.search(ris.get("colore"), ris.get("nome"), ris.get("taglia"), ris.get("categoria.nome"));
-//	}
+	@GetMapping
+	public Iterable<Capo> get() {
+		return database.findAll();
+	}
 
 	@GetMapping("/{id}")
 	public Optional<Capo> get(@PathVariable int id) {
@@ -59,7 +53,7 @@ public class CapoController {
 		}
 	}
 	
-	@GetMapping("/{cmd}")
+	@RequestMapping(value="/cmd/{cmd}", method = RequestMethod.GET)
 	public Iterable<Capo> OrderBy(@PathVariable String cmd, @RequestParam String search) {
 		Iterable<Capo> ris = new ArrayList<>();
 		if (search.equals("")) {
@@ -83,7 +77,7 @@ public class CapoController {
 			default:
 				ris = database.findAll();
 		}
-		} else {
+		} else if (cmd.equals("ricerca")) {
 			Map<String, String> rissa = new HashMap<>();
 			rissa.put("colore", search);
 			rissa.put("nome", search);
@@ -94,14 +88,14 @@ public class CapoController {
 		return ris;
 	}
 	
-	@GetMapping("/{min, max}")
-	public Iterable<Capo> Filter(@RequestParam int min, int max) {
-		return database.filter(min, max);
+	@RequestMapping(value="/filter", method = RequestMethod.GET)
+	public Iterable<Capo> Filter(@RequestParam (name = "min") int min, @RequestParam (name = "max") int max) {
+		return database.findByPrezzo(min, max);
 	}
 
-	@GetMapping("/{sex}")
-	public Iterable<Capo> FilterBySex(@RequestParam String sex) {
-		return database.filterBySex(sex);
+	@RequestMapping(value="/find/{sex}", method = RequestMethod.GET)
+	public Iterable<Capo> FilterBySex(@PathVariable ("sex") String sex) {
+		return database.findBySex(sex);
 	}
 
 }
